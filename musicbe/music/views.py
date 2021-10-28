@@ -2,7 +2,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Song
 from .serializers import SongSerializer
@@ -21,9 +23,7 @@ class ListCreateSongView(ListCreateAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            return JsonResponse({
-                'message': 'Create a new Song successful!'
-            }, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
 
         return JsonResponse({
             'message': 'Create a new Song unsuccessful!'
@@ -41,9 +41,7 @@ class UpdateDeleteSongView(RetrieveUpdateDestroyAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            return JsonResponse({
-                'message': 'Update Song successful!'
-            }, status=status.HTTP_200_OK)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
 
         return JsonResponse({
             'message': 'Update Song unsuccessful!'
@@ -56,3 +54,49 @@ class UpdateDeleteSongView(RetrieveUpdateDestroyAPIView):
         return JsonResponse({
             'message': 'Delete Song successful!'
         }, status=status.HTTP_200_OK)
+
+
+class UpdateSongView(UpdateAPIView):
+    model = Song
+    serializer_class = SongSerializer
+
+    def put(self, request, *args, **kwargs):
+        song = get_object_or_404(Song, id=kwargs.get('pk'))
+        song.views += 1
+        song.save()
+        serializer = SongSerializer(song)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class DetailSongView(APIView):
+    model = Song
+    serializer_class = SongSerializer
+
+    def get(self, request, pk):
+        song = get_object_or_404(Song, id=pk)
+        serializer = SongSerializer(song)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class SearchSongTitleView(APIView):
+    model = Song
+    serializer_class = SongSerializer
+
+    def get(self, request, s):
+        song = Song.objects.filter(title__icontains=s)
+        serializer = SongSerializer(song, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class SearchSongArtistView(APIView):
+    model = Song
+    serializer_class = SongSerializer
+
+    def get(self, request, s):
+        song = Song.objects.filter(artist__icontains=s)
+        serializer = SongSerializer(song, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
