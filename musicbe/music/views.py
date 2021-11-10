@@ -6,8 +6,8 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Song
-from .serializers import SongSerializer
+from .models import Song, Genre, SongGenre, Artist, SongArtist
+from .serializers import SongSerializer, SongSerializerPost
 
 
 class ListCreateSongView(ListCreateAPIView):
@@ -18,12 +18,36 @@ class ListCreateSongView(ListCreateAPIView):
         return Song.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = SongSerializer(data=request.data)
+        serializer = SongSerializerPost(data=request.data)
 
         if serializer.is_valid():
+            artists = request.data['artists']
+            genres = request.data['genres']
             serializer.save()
+            song = Song.objects.get(pk=serializer.data['id'])
+            for i in genres:
+                try:
+                    genre = Genre.objects.get(title=i)
+                except Genre.DoesNotExist:
+                    genre = None
+                if genre is None:
+                    genre = Genre.objects.create(title=i)
 
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+                SongGenre.objects.create(song=song, genre=genre)
+
+            for i in artists:
+                try:
+                    artist = Artist.objects.get(name=i)
+                except Artist.DoesNotExist:
+                    artist = None
+                if artist is None:
+                    artist = Artist.objects.create(name=i, information='No information available')
+
+                SongArtist.objects.create(song=song, artist=artist)
+
+            songNew = get_object_or_404(Song, id=serializer.data['id'])
+            serializerSong = SongSerializer(songNew)
+            return Response(data=serializerSong.data, status=status.HTTP_200_OK)
 
         return JsonResponse({
             'message': 'Create a new Song unsuccessful!'
@@ -85,18 +109,20 @@ class SearchSongTitleView(APIView):
     serializer_class = SongSerializer
 
     def get(self, request, s):
+        s = s.strip()
         song = Song.objects.filter(title__icontains=s)
         serializer = SongSerializer(song, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class SearchSongArtistView(APIView):
-    model = Song
-    serializer_class = SongSerializer
-
-    def get(self, request, s):
-        song = Song.objects.filter(artist__icontains=s)
-        serializer = SongSerializer(song, many=True)
-
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+# class SearchSongArtistView(APIView):
+#     model = Song
+#     serializer_class = SongSerializer
+#
+#     def get(self, request, s):
+#         s = s.strip()
+#         song = Song.objects.filter(artist__icontains=s)
+#         serializer = SongSerializer(song, many=True)
+#
+#         return Response(data=serializer.data, status=status.HTTP_200_OK)
