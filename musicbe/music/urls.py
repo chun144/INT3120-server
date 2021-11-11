@@ -15,6 +15,8 @@ urlpatterns = [
     path('song/search/title/<str:s>', views.SearchSongTitleView.as_view()),
     # path('song/search/artist/<str:s>', views.SearchSongArtistView.as_view()),
 
+    path('song/search/album/<str:s>', views.SearchSongAlbumView.as_view()),
+    path('song/mock/', views.SongUpdateMock.as_view()),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('info/', TestAPIView.as_view()),
