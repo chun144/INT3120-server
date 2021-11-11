@@ -1,2 +1,1 @@
-web: gunicorn main.wsgi
-
+web: gunicorn musicbe.wsgi
