@@ -1,9 +1,12 @@
+from urllib.request import urlopen
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.response import Response
+import json
 from rest_framework.views import APIView
 
 from .models import Song, Genre, SongGenre, Artist, SongArtist
@@ -116,13 +119,49 @@ class SearchSongTitleView(APIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-# class SearchSongArtistView(APIView):
-#     model = Song
-#     serializer_class = SongSerializer
-#
-#     def get(self, request, s):
-#         s = s.strip()
-#         song = Song.objects.filter(artist__icontains=s)
-#         serializer = SongSerializer(song, many=True)
-#
-#         return Response(data=serializer.data, status=status.HTTP_200_OK)
+class SearchSongAlbumView(APIView):
+    model = Song
+    serializer_class = SongSerializer
+
+    def get(self, request, s):
+        s = s.strip()
+        song = Song.objects.filter(album__icontains=s)
+        serializer = SongSerializer(song, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class SongUpdateMock(APIView):
+
+    def post(self, request):
+        url = urlopen('https://mock-server-music.herokuapp.com/songs').read()
+        data = json.loads(url)
+        for i in data:
+            if i.get('url') is None:
+                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url_player='None',
+                                           duration=i.get('duration'), album='None', views=0)
+            else:
+                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url_player=i.get('url'),
+                                           duration=i.get('duration'), album='None', views=0)
+
+            artists = i.get('artist')
+            try:
+                artist = Artist.objects.get(name=artists)
+            except Artist.DoesNotExist:
+                artist = None
+            if artist is None:
+                artist = Artist.objects.create(name=artists, information='No information available')
+
+            SongArtist.objects.create(song=song, artist=artist)
+
+            genres = i.get('genre')
+            try:
+                genre = Genre.objects.get(title=genres)
+            except Genre.DoesNotExist:
+                genre = None
+            if genre is None:
+                genre = Genre.objects.create(title=genres)
+
+            SongGenre.objects.create(song=song, genre=genre)
+
+        return Response(0, status=status.HTTP_200_OK)
