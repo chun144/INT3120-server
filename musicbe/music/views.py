@@ -13,10 +13,6 @@ from .models import Song, Genre, SongGenre, Artist, SongArtist
 from .serializers import SongSerializer, SongSerializerPost
 
 
-class TestAPIView(APIView):
-    def get(self, request):
-        return Response('chien vailoz')
-
 class ListCreateSongView(ListCreateAPIView):
     model = Song
     serializer_class = SongSerializer
