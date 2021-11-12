@@ -63,7 +63,7 @@ class UpdateDeleteSongView(RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         song = get_object_or_404(Song, id=kwargs.get('pk'))
-        serializer = SongSerializer(song, data=request.data)
+        serializer = SongSerializerPost(song, data=request.data)
 
         if serializer.is_valid():
             serializer.save()
