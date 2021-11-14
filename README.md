@@ -9,11 +9,11 @@ POST    https://music-app-dd.herokuapp.com/music/song/
 ```json
 {
     "title": "song 1",
-    "artists": ["J", "K"],
+    "artists": "J, K",
     "artwork": "1",
     "url_player": "url",
     "duration": "1",
-    "genres": ["a", "b"],
+    "genres": "a, b",
     "album": "1"
 }
 ```
@@ -31,11 +31,11 @@ PUT    https://music-app-dd.herokuapp.com/music/song/1
 ```json
 {
     "title": "song 1",
-    "artists": ["J", "K"],
+    "artists": "J, K",
     "artwork": "1",
     "url_player": "url",
     "duration": "1",
-    "genres": ["a", "b"],
+    "genres": "a, b",
     "album": "1"
 }
 ```
@@ -64,8 +64,13 @@ get songs contain input (title contain "song")
 GET    https://music-app-dd.herokuapp.com/music/song/search/title/song
 ```
 
+### Get all albums
+```
+GET    https://music-app-dd.herokuapp.com/music/song/album/
+```
+
 ### Search songs with album
-get songs contain input (album contain "1")
+get songs with input (album "1")
 ```
 GET    https://music-app-dd.herokuapp.com/music/song/search/album/1
 ```
@@ -84,4 +89,37 @@ POST    https://music-app-dd.herokuapp.com/music/api/token/
     "username": "admin",
     "password": "12345678"
 }
+```
+### Add 1 artist
+```
+POST    https://music-app-dd.herokuapp.com/music/artist/
+```
+```json
+{
+    "name": "A",
+    "information": "abc"
+}
+```
+
+### Get all artists
+```
+GET    https://music-app-dd.herokuapp.com/music/artist/
+```
+
+### Edit 1 artist with id
+edit artist (id=1)
+```
+PUT    https://music-app-dd.herokuapp.com/music/artist/1
+```
+```json
+{
+    "name": "B",
+    "information": "abc"
+}
+```
+
+### Delete 1 artist with id
+delete artist (id=1)
+```
+DELETE    https://music-app-dd.herokuapp.com/music/artist/1
 ```
