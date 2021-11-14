@@ -10,7 +10,7 @@ import json
 from rest_framework.views import APIView
 
 from .models import Song, Genre, SongGenre, Artist, SongArtist
-from .serializers import SongSerializer, SongSerializerPost
+from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer
 
 
 class ListCreateSongView(ListCreateAPIView):
@@ -24,8 +24,18 @@ class ListCreateSongView(ListCreateAPIView):
         serializer = SongSerializerPost(data=request.data)
 
         if serializer.is_valid():
-            artists = request.data['artists']
-            genres = request.data['genres']
+            artists_data = request.data['artists'].split(",")
+            genres_data = request.data['genres'].split(",")
+            artists = []
+            for i in artists_data:
+                i = i.strip()
+                artists.append(i)
+
+            genres = []
+            for i in genres_data:
+                i = i.strip()
+                genres.append(i)
+
             serializer.save()
             song = Song.objects.get(pk=serializer.data['id'])
             for i in genres:
@@ -125,7 +135,7 @@ class SearchSongAlbumView(APIView):
 
     def get(self, request, s):
         s = s.strip()
-        song = Song.objects.filter(album__icontains=s)
+        song = Song.objects.filter(album=s)
         serializer = SongSerializer(song, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -138,30 +148,102 @@ class SongUpdateMock(APIView):
         data = json.loads(url)
         for i in data:
             if i.get('url') is None:
-                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url_player='None',
-                                           duration=i.get('duration'), album='None', views=0)
+                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url_player='null',
+                                           duration=i.get('duration'), album='null', views=0)
             else:
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url_player=i.get('url'),
-                                           duration=i.get('duration'), album='None', views=0)
+                                           duration=i.get('duration'), album='null', views=0)
 
-            artists = i.get('artist')
-            try:
-                artist = Artist.objects.get(name=artists)
-            except Artist.DoesNotExist:
-                artist = None
-            if artist is None:
-                artist = Artist.objects.create(name=artists, information='No information available')
+            artists_data = i.get('artist').split(",")
+            artists = []
+            for j in artists_data:
+                j = j.strip()
+                artists.append(j)
 
-            SongArtist.objects.create(song=song, artist=artist)
+            genres_data = i.get('genre').split(",")
+            genres = []
+            for j in genres_data:
+                j = j.strip()
+                genres.append(j)
 
-            genres = i.get('genre')
-            try:
-                genre = Genre.objects.get(title=genres)
-            except Genre.DoesNotExist:
-                genre = None
-            if genre is None:
-                genre = Genre.objects.create(title=genres)
+            for j in genres:
+                try:
+                    genre = Genre.objects.get(title=j)
+                except Genre.DoesNotExist:
+                    genre = None
+                if genre is None:
+                    genre = Genre.objects.create(title=j)
 
-            SongGenre.objects.create(song=song, genre=genre)
+                SongGenre.objects.create(song=song, genre=genre)
+
+            for j in artists:
+                try:
+                    artist = Artist.objects.get(name=j)
+                except Artist.DoesNotExist:
+                    artist = None
+                if artist is None:
+                    artist = Artist.objects.create(name=j, information='No information available')
+
+                SongArtist.objects.create(song=song, artist=artist)
 
         return Response(0, status=status.HTTP_200_OK)
+
+
+class ListAlbumView(APIView):
+    model = Song
+
+    def get(self, request):
+        songs = Song.objects.all()
+        albums = {""}
+        for i in songs:
+            albums.add(i.album)
+
+        albums.remove("")
+
+        return Response(albums, status=status.HTTP_200_OK)
+
+
+class ListCreateArtistView(ListCreateAPIView):
+    model = Artist
+    serializer_class = ArtistModelSerializer
+
+    def get_queryset(self):
+        return Artist.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = ArtistModelSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Create a new Artist unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateDeleteArtistView(RetrieveUpdateDestroyAPIView):
+    model = Artist
+    serializer_class = ArtistModelSerializer
+
+    def put(self, request, *args, **kwargs):
+        artist = get_object_or_404(Artist, id=kwargs.get('pk'))
+        serializer = ArtistModelSerializer(artist, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Update Artist unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        artist = get_object_or_404(Artist, id=kwargs.get('pk'))
+        artist.delete()
+
+        return JsonResponse({
+            'message': 'Delete Artist successful!'
+        }, status=status.HTTP_200_OK)

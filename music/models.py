@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 class Artist(models.Model):
     name = models.CharField(max_length=50)
-    information = models.CharField(max_length=255)
+    information = models.CharField(max_length=255, default='No information available')
 
     def __str__(self):
         return self.name
@@ -20,12 +20,12 @@ class Genre(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=100)
     artists = models.ManyToManyField(Artist, through='SongArtist')
-    artwork = models.CharField(max_length=255, default=None)
-    url_player = models.CharField(max_length=255, default=None)
+    artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1636832140/Image/logo.png')
+    url_player = models.CharField(max_length=255, default='null')
     views = models.IntegerField(default=0)
-    duration = models.CharField(max_length=50, default=None)
+    duration = models.CharField(max_length=50, default='null')
     genres = models.ManyToManyField(Genre, through='SongGenre')
-    album = models.CharField(max_length=50, default=None)
+    album = models.CharField(max_length=50, default='null')
 
     def __str__(self):
         return self.title
