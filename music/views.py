@@ -8,11 +8,70 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 import json
 from rest_framework.views import APIView
-
+from rest_framework.decorators import api_view
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Song, Genre, SongGenre, Artist, SongArtist
-from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer
+from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer, UserRegistrationSerializer, UserLoginSerializer
 
 
+@api_view(['POST',])
+def registration_view(request):
+    if request.method == 'POST':
+        serializer = UserRegistrationSerializer(data=request.data)
+        data ={}
+        if serializer.is_valid():
+            user = serializer.save()
+            data['response'] = 'Register successful!'
+            data['username'] = user.username
+        else:
+            data = serializer.errors
+        return Response(data)
+# class UserRegisterView(APIView):
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+#             serializer.save()
+
+#             return JsonResponse({
+#                 'message': 'Register successful!'
+#             }, status=status.HTTP_201_CREATED)
+
+#         else:
+#             return JsonResponse({
+#                 'error_message': 'This username has already exist!',
+#                 'errors_code': 400,
+#             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLoginView(APIView):
+    def post(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                request,
+                username=serializer.validated_data['username'],
+                password=serializer.validated_data['password']
+            )
+            if user:
+                refresh = TokenObtainPairSerializer.get_token(user)
+                data = {
+                    'refresh_token': str(refresh),
+                    'access_token': str(refresh.access_token)
+                }
+                return Response(data, status=status.HTTP_200_OK)
+
+            return Response({
+                'error_message': 'username or password is incorrect!',
+                'error_code': 400
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'error_messages': serializer.errors,
+            'error_code': 400
+        }, status=status.HTTP_400_BAD_REQUEST)
 class ListCreateSongView(ListCreateAPIView):
     model = Song
     serializer_class = SongSerializer
