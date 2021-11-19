@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 # Create your models here.
 
 class User(AbstractUser):
@@ -14,6 +15,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
 
 class Artist(models.Model):
     name = models.CharField(max_length=50)
@@ -33,7 +35,8 @@ class Genre(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=100)
     artists = models.ManyToManyField(Artist, through='SongArtist')
-    artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1636832140/Image/logo.png')
+    artwork = models.CharField(max_length=255,
+                               default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1636832140/Image/logo.png')
     url_player = models.CharField(max_length=255, default='null')
     views = models.IntegerField(default=0)
     duration = models.CharField(max_length=50, default='null')
