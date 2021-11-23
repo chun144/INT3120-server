@@ -11,7 +11,7 @@ POST    https://music-app-dd.herokuapp.com/music/song/
     "title": "song 1",
     "artists": "J, K",
     "artwork": "1",
-    "url_player": "url",
+    "url": "url",
     "duration": "1",
     "genres": "a, b",
     "album": "1"
@@ -33,7 +33,7 @@ PUT    https://music-app-dd.herokuapp.com/music/song/1
     "title": "song 1",
     "artists": "J, K",
     "artwork": "1",
-    "url_player": "url",
+    "url": "url",
     "duration": "1",
     "genres": "a, b",
     "album": "1"

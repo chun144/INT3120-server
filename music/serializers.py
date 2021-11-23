@@ -47,13 +47,13 @@ class SongSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url_player', 'genres', 'views', 'duration', 'album')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album')
 
 
 class SongSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url_player', 'genres', 'views', 'duration', 'album')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album')
 
 
 class ArtistModelSerializer(serializers.ModelSerializer):
