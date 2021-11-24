@@ -123,3 +123,26 @@ delete artist (id=1)
 ```
 DELETE    https://music-app-dd.herokuapp.com/music/artist/1
 ```
+
+### Register 1 user
+```
+POST    https://music-app-dd.herokuapp.com/music/register
+```
+```json
+{
+    "username": "ce",
+    "password": "123456",
+    "password2": "123456"
+}
+```
+
+### Login
+```
+POST    https://music-app-dd.herokuapp.com/music/login
+```
+```json
+{
+    "username": "ce",
+    "password": "123456"
+}
+```
