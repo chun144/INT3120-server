@@ -5,22 +5,24 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import json
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-from django.contrib.auth.hashers import make_password
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Song, Genre, SongGenre, Artist, SongArtist
-from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer, UserRegistrationSerializer, UserLoginSerializer
+from .models import Song, Genre, SongGenre, Artist, SongArtist, User, FavoriteList
+from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer, UserRegistrationSerializer, \
+    UserLoginSerializer, FavoriteListSerializer
 
 
-@api_view(['POST',])
+@api_view(['POST', ])
+@permission_classes([AllowAny])
 def registration_view(request):
     if request.method == 'POST':
         serializer = UserRegistrationSerializer(data=request.data)
-        data ={}
+        data = {}
         if serializer.is_valid():
             user = serializer.save()
             data['response'] = 'Register successful!'
@@ -28,25 +30,11 @@ def registration_view(request):
         else:
             data = serializer.errors
         return Response(data)
-# class UserRegisterView(APIView):
-#     def post(self, request):
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
-#             serializer.save()
-
-#             return JsonResponse({
-#                 'message': 'Register successful!'
-#             }, status=status.HTTP_201_CREATED)
-
-#         else:
-#             return JsonResponse({
-#                 'error_message': 'This username has already exist!',
-#                 'errors_code': 400,
-#             }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -73,12 +61,20 @@ class UserLoginView(APIView):
             'error_messages': serializer.errors,
             'error_code': 400
         }, status=status.HTTP_400_BAD_REQUEST)
-class ListCreateSongView(ListCreateAPIView):
+
+
+class ListSongView(ListCreateAPIView):
+    permission_classes = [AllowAny]
     model = Song
     serializer_class = SongSerializer
 
     def get_queryset(self):
         return Song.objects.all()
+
+
+class ListCreateSongView(ListCreateAPIView):
+    model = Song
+    serializer_class = SongSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = SongSerializerPost(data=request.data)
@@ -167,6 +163,7 @@ class UpdateSongView(UpdateAPIView):
 
 
 class DetailSongView(APIView):
+    permission_classes = [AllowAny]
     model = Song
     serializer_class = SongSerializer
 
@@ -178,6 +175,7 @@ class DetailSongView(APIView):
 
 
 class SearchSongTitleView(APIView):
+    permission_classes = [AllowAny]
     model = Song
     serializer_class = SongSerializer
 
@@ -190,6 +188,7 @@ class SearchSongTitleView(APIView):
 
 
 class SearchSongAlbumView(APIView):
+    permission_classes = [AllowAny]
     model = Song
     serializer_class = SongSerializer
 
@@ -208,11 +207,11 @@ class SongUpdateMock(APIView):
         data = json.loads(url)
         for i in data:
             if i.get('url') is None:
-                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url='null',
-                                           duration=i.get('duration'), album='null', views=0)
+                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url='N/A',
+                                           duration=i.get('duration'), album='Default', views=0)
             else:
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url=i.get('url'),
-                                           duration=i.get('duration'), album='null', views=0)
+                                           duration=i.get('duration'), album='Default', views=0)
 
             artists_data = i.get('artist').split(",")
             artists = []
@@ -242,7 +241,7 @@ class SongUpdateMock(APIView):
                 except Artist.DoesNotExist:
                     artist = None
                 if artist is None:
-                    artist = Artist.objects.create(name=j, information='No information available')
+                    artist = Artist.objects.create(name=j, information='N/A')
 
                 SongArtist.objects.create(song=song, artist=artist)
 
@@ -250,6 +249,7 @@ class SongUpdateMock(APIView):
 
 
 class ListAlbumView(APIView):
+    permission_classes = [AllowAny]
     model = Song
 
     def get(self, request):
@@ -307,3 +307,51 @@ class UpdateDeleteArtistView(RetrieveUpdateDestroyAPIView):
         return JsonResponse({
             'message': 'Delete Artist successful!'
         }, status=status.HTTP_200_OK)
+
+
+class FavoriteListCreateAndDelete(APIView):
+
+    def post(self, request):
+        serializer = FavoriteListSerializer(data=request.data)
+
+        if serializer.is_valid():
+            song = get_object_or_404(Song, id=serializer.data['songId'])
+            user = get_object_or_404(User, username=serializer.data['username'])
+            FavoriteList.objects.create(song=song, user=user)
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Data Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        serializer = FavoriteListSerializer(data=request.data)
+
+        if serializer.is_valid():
+            song = get_object_or_404(Song, id=serializer.data['songId'])
+            user = get_object_or_404(User, username=serializer.data['username'])
+            favoriteList = get_object_or_404(FavoriteList, song=song, user=user)
+            favoriteList.delete()
+
+            return JsonResponse({
+                'message': 'Delete Song successful!'
+            }, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Data Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FavoriteListView(APIView):
+
+    def get(self, request, s):
+        user = get_object_or_404(User, username=s)
+        favoriteList = FavoriteList.objects.filter(user=user)
+        songs = []
+        for i in favoriteList:
+            songs.append(i.song)
+
+        serializer = SongSerializer(songs, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

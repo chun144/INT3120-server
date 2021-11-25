@@ -1,10 +1,11 @@
 from rest_framework import serializers
 # from django.contrib.auth.models import User
-from .models import Song, Genre, Artist, User
+from .models import Song, Genre, Artist, User, FavoriteList
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
     class Meta:
         model = User
         fields = ['username', 'password', 'password2']
@@ -24,9 +25,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
+
+
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
@@ -47,16 +51,22 @@ class SongSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album', 'description')
 
 
 class SongSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album', 'description')
 
 
 class ArtistModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields = ('id', 'name', 'information')
+
+
+class FavoriteListSerializer(serializers.Serializer):
+    songId = serializers.IntegerField(required=True)
+    username = serializers.CharField(required=True)
+
