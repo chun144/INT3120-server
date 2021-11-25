@@ -40,7 +40,7 @@ class Song(models.Model):
     views = models.IntegerField(default=0)
     duration = models.IntegerField(default=0)
     genres = models.ManyToManyField(Genre, through='SongGenre')
-    album = models.CharField(max_length=50, default='N/A')
+    album = models.CharField(max_length=50, default='Default')
     description = models.CharField(max_length=1000, default='N/A')
 
     def __str__(self):
@@ -61,3 +61,11 @@ class SongArtist(models.Model):
 
     class Meta:
         unique_together = [['song', 'artist']]
+
+
+class FavoriteList(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [['song', 'user']]

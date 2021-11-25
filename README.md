@@ -2,7 +2,7 @@
 
 ## APIs
 
-### Add 1 song
+### Add 1 song (login required)
 ```
 POST    https://music-app-dd.herokuapp.com/music/song/
 ```
@@ -14,16 +14,17 @@ POST    https://music-app-dd.herokuapp.com/music/song/
     "url": "url",
     "duration": 1,
     "genres": "a, b",
-    "album": "1"
+    "album": "1",
+    "description": "A"
 }
 ```
 
 ### Get all songs
 ```
-GET    https://music-app-dd.herokuapp.com/music/song/
+GET    https://music-app-dd.herokuapp.com/music/song/all
 ```
 
-### Edit 1 song with id
+### Edit 1 song with id (login required)
 edit song (id=1)
 ```
 PUT    https://music-app-dd.herokuapp.com/music/song/1
@@ -36,17 +37,18 @@ PUT    https://music-app-dd.herokuapp.com/music/song/1
     "url": "url",
     "duration": 1,
     "genres": "a, b",
-    "album": "1"
+    "album": "1",
+    "description": "A"
 }
 ```
 
-### Delete 1 song with id
+### Delete 1 song with id (login required)
 delete song (id=1)
 ```
 DELETE    https://music-app-dd.herokuapp.com/music/song/1
 ```
 
-### Song +1 view with id
+### Song +1 view with id (login required)
 song (id=1) +1 view
 ```
 PUT    https://music-app-dd.herokuapp.com/music/song/views/1
@@ -75,12 +77,12 @@ get songs with input (album "1")
 GET    https://music-app-dd.herokuapp.com/music/song/search/album/1
 ```
 
-### Update data from mock-server
+### Update data from mock-server (login required)
 ```
 POST    https://music-app-dd.herokuapp.com/music/song/mock/
 ```
 
-### Add 1 artist
+### Add 1 artist (login required)
 ```
 POST    https://music-app-dd.herokuapp.com/music/artist/
 ```
@@ -91,12 +93,12 @@ POST    https://music-app-dd.herokuapp.com/music/artist/
 }
 ```
 
-### Get all artists
+### Get all artists (login required)
 ```
 GET    https://music-app-dd.herokuapp.com/music/artist/
 ```
 
-### Edit 1 artist with id
+### Edit 1 artist with id (login required)
 edit artist (id=1)
 ```
 PUT    https://music-app-dd.herokuapp.com/music/artist/1
@@ -108,7 +110,7 @@ PUT    https://music-app-dd.herokuapp.com/music/artist/1
 }
 ```
 
-### Delete 1 artist with id
+### Delete 1 artist with id (login required)
 delete artist (id=1)
 ```
 DELETE    https://music-app-dd.herokuapp.com/music/artist/1
@@ -135,4 +137,32 @@ POST    https://music-app-dd.herokuapp.com/music/login
     "username": "ce",
     "password": "123456"
 }
+```
+
+### Add 1 song to favorite list of user (login required)
+```
+POST    https://music-app-dd.herokuapp.com/music/favorite-list/
+```
+```json
+{
+    "songId": 1,
+    "username": "chun"
+}
+```
+
+### Delete 1 song from favorite list of user (login required)
+```
+DELETE    https://music-app-dd.herokuapp.com/music/favorite-list/
+```
+```json
+{
+    "songId": 1,
+    "username": "chun"
+}
+```
+
+### Get all song from favorite list of user (login required)
+Get all song from favorite list of user with username "chun"
+```
+POST    https://music-app-dd.herokuapp.com/music/favorite-list/chun
 ```

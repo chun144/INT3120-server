@@ -1,6 +1,6 @@
 from rest_framework import serializers
 # from django.contrib.auth.models import User
-from .models import Song, Genre, Artist, User
+from .models import Song, Genre, Artist, User, FavoriteList
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -64,3 +64,9 @@ class ArtistModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields = ('id', 'name', 'information')
+
+
+class FavoriteListSerializer(serializers.Serializer):
+    songId = serializers.IntegerField(required=True)
+    username = serializers.CharField(required=True)
+
