@@ -19,7 +19,7 @@ class User(AbstractUser):
 
 class Artist(models.Model):
     name = models.CharField(max_length=50)
-    information = models.CharField(max_length=255, default='No information available')
+    information = models.CharField(max_length=1000, default='N/A')
 
     def __str__(self):
         return self.name
@@ -35,13 +35,13 @@ class Genre(models.Model):
 class Song(models.Model):
     title = models.CharField(max_length=100)
     artists = models.ManyToManyField(Artist, through='SongArtist')
-    artwork = models.CharField(max_length=255,
-                               default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1636832140/Image/logo.png')
-    url = models.CharField(max_length=255, default='null')
+    artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1637651180/Data/Default/logo_mjrwxc.png')
+    url = models.CharField(max_length=255, default='N/A')
     views = models.IntegerField(default=0)
-    duration = models.CharField(max_length=50, default='null')
+    duration = models.IntegerField(default=0)
     genres = models.ManyToManyField(Genre, through='SongGenre')
-    album = models.CharField(max_length=50, default='null')
+    album = models.CharField(max_length=50, default='N/A')
+    description = models.CharField(max_length=1000, default='N/A')
 
     def __str__(self):
         return self.title

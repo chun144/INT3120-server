@@ -207,11 +207,11 @@ class SongUpdateMock(APIView):
         data = json.loads(url)
         for i in data:
             if i.get('url') is None:
-                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url='null',
-                                           duration=i.get('duration'), album='null', views=0)
+                song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url='N/A',
+                                           duration=i.get('duration'), album='N/A', views=0)
             else:
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url=i.get('url'),
-                                           duration=i.get('duration'), album='null', views=0)
+                                           duration=i.get('duration'), album='N/A', views=0)
 
             artists_data = i.get('artist').split(",")
             artists = []

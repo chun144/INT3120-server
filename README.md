@@ -12,7 +12,7 @@ POST    https://music-app-dd.herokuapp.com/music/song/
     "artists": "J, K",
     "artwork": "1",
     "url": "url",
-    "duration": "1",
+    "duration": 1,
     "genres": "a, b",
     "album": "1"
 }
@@ -34,7 +34,7 @@ PUT    https://music-app-dd.herokuapp.com/music/song/1
     "artists": "J, K",
     "artwork": "1",
     "url": "url",
-    "duration": "1",
+    "duration": 1,
     "genres": "a, b",
     "album": "1"
 }
@@ -80,16 +80,6 @@ GET    https://music-app-dd.herokuapp.com/music/song/search/album/1
 POST    https://music-app-dd.herokuapp.com/music/song/mock/
 ```
 
-### Get token
-```
-POST    https://music-app-dd.herokuapp.com/music/api/token/
-```
-```json
-{
-    "username": "admin",
-    "password": "12345678"
-}
-```
 ### Add 1 artist
 ```
 POST    https://music-app-dd.herokuapp.com/music/artist/
