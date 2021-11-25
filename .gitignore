@@ -1,12 +1,6 @@
-.venv/
 .idea
-.venv
 venv
-venv/
-.idea/
 .env
-.env/
 .vscode/
 *.pyc
 db.sqlite3
-.vscode/
