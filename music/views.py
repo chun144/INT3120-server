@@ -17,20 +17,38 @@ from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializ
     UserLoginSerializer, FavoriteListSerializer
 
 
-@api_view(['POST', ])
-@permission_classes([AllowAny])
-def registration_view(request):
-    if request.method == 'POST':
+# @api_view(['POST', ])
+# @permission_classes([AllowAny])
+# def registration_view(request):
+#     if request.method == 'POST':
+#         serializer = UserRegistrationSerializer(data=request.data)
+#         data = {}
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             data['response'] = 'Register successful!'
+#             data['username'] = user.username
+#         else:
+#             data = serializer.errors
+#         return Response(data)
+
+class UserRegisterView(APIView):
+    def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
-        data = {}
+        data ={}
         if serializer.is_valid():
             user = serializer.save()
             data['response'] = 'Register successful!'
             data['username'] = user.username
-        else:
-            data = serializer.errors
-        return Response(data)
 
+            return JsonResponse({
+                'message': 'Register successful!'
+            }, status=status.HTTP_201_CREATED)
+
+        else:
+            return JsonResponse({
+                'error_message': 'This username has already exist!',
+                'errors_code': 409,
+            }, status=status.HTTP_409_CONFLICT)
 
 class UserLoginView(APIView):
     permission_classes = [AllowAny]

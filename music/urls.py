@@ -19,7 +19,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('artist/', views.ListCreateArtistView.as_view()),
     path('artist/<int:pk>', views.UpdateDeleteArtistView.as_view()),
-    path('register', views.registration_view, name='register'),
+    path('register', views.UserRegisterView.as_view(), name='register'),
     path('login', views.UserLoginView.as_view(), name='login'),
     path('favorite-list/', views.FavoriteListCreateAndDelete.as_view()),
     path('favorite-list/<str:s>', views.FavoriteListView.as_view()),
