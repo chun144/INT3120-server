@@ -164,5 +164,5 @@ DELETE    https://music-app-dd.herokuapp.com/music/favorite-list/
 ### Get all song from favorite list of user (login required)
 Get all song from favorite list of user with username "chun"
 ```
-POST    https://music-app-dd.herokuapp.com/music/favorite-list/chun
+GET    https://music-app-dd.herokuapp.com/music/favorite-list/chun
 ```
