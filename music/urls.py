@@ -19,5 +19,5 @@ urlpatterns = [
     path('artist/', views.ListCreateArtistView.as_view()),
     path('artist/<int:pk>', views.UpdateDeleteArtistView.as_view()),
     path('register', views.registration_view, name='register'),
-    path('login', TokenObtainPairView.as_view(), name='login'),
+    path('login', views.UserLoginView.as_view(), name='login'),
 ]
