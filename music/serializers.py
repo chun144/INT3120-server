@@ -1,6 +1,6 @@
 from rest_framework import serializers
 # from django.contrib.auth.models import User
-from .models import Song, Genre, Artist, User, FavoriteList
+from .models import Song, Genre, Artist, User
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
