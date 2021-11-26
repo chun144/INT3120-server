@@ -9,7 +9,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import json
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Song, Genre, SongGenre, Artist, SongArtist, User, FavoriteList
@@ -17,24 +16,12 @@ from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializ
     UserLoginSerializer, FavoriteListSerializer
 
 
-# @api_view(['POST', ])
-# @permission_classes([AllowAny])
-# def registration_view(request):
-#     if request.method == 'POST':
-#         serializer = UserRegistrationSerializer(data=request.data)
-#         data = {}
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             data['response'] = 'Register successful!'
-#             data['username'] = user.username
-#         else:
-#             data = serializer.errors
-#         return Response(data)
-
 class UserRegisterView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
-        data ={}
+        data = {}
         if serializer.is_valid():
             user = serializer.save()
             data['response'] = 'Register successful!'
@@ -49,6 +36,7 @@ class UserRegisterView(APIView):
                 'error_message': 'This username has already exist!',
                 'errors_code': 409,
             }, status=status.HTTP_409_CONFLICT)
+
 
 class UserLoginView(APIView):
     permission_classes = [AllowAny]
