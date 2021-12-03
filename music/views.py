@@ -361,3 +361,33 @@ class FavoriteListView(APIView):
         serializer = SongSerializer(songs, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ListGenreView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        genres = Genre.objects.all()
+        genre_list = {""}
+        for i in genres:
+            genre_list.add(i.title)
+
+        genre_list.remove("")
+
+        return Response(genre_list, status=status.HTTP_200_OK)
+
+
+class SearchSongGenreView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, s):
+        s = s.strip()
+        genre = get_object_or_404(Genre, title=s)
+        song_genre = SongGenre.objects.filter(genre=genre)
+        songs = []
+        for i in song_genre:
+            songs.append(i.song)
+
+        serializer = SongSerializer(songs, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

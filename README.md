@@ -166,3 +166,14 @@ Get all song from favorite list of user with username "chun"
 ```
 GET    https://music-app-dd.herokuapp.com/music/favorite-list/chun
 ```
+
+### Get all genres
+```
+GET    https://music-app-dd.herokuapp.com/music/genre/
+```
+
+### Search songs with genre
+get songs with input (genre "Pop")
+```
+GET    https://music-app-dd.herokuapp.com/music/genre/Pop
+```
