@@ -11,9 +11,9 @@ import json
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Song, Genre, SongGenre, Artist, SongArtist, User, FavoriteList
+from .models import Song, Genre, SongGenre, Artist, SongArtist, User, FavoriteList, Playlist, SongPlaylist
 from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer, UserRegistrationSerializer, \
-    UserLoginSerializer, FavoriteListSerializer
+    UserLoginSerializer, FavoriteListSerializer, GenreSerializerGet, PlaylistSerializer, PlayListSongSerializer
 
 
 class UserRegisterView(APIView):
@@ -116,7 +116,7 @@ class ListCreateSongView(ListCreateAPIView):
                 except Artist.DoesNotExist:
                     artist = None
                 if artist is None:
-                    artist = Artist.objects.create(name=i, information='No information available')
+                    artist = Artist.objects.create(name=i, information='N/A')
 
                 SongArtist.objects.create(song=song, artist=artist)
 
@@ -193,19 +193,6 @@ class SearchSongTitleView(APIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class SearchSongAlbumView(APIView):
-    permission_classes = [AllowAny]
-    model = Song
-    serializer_class = SongSerializer
-
-    def get(self, request, s):
-        s = s.strip()
-        song = Song.objects.filter(album=s)
-        serializer = SongSerializer(song, many=True)
-
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-
 class SongUpdateMock(APIView):
 
     def post(self, request):
@@ -214,10 +201,10 @@ class SongUpdateMock(APIView):
         for i in data:
             if i.get('url') is None:
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url='N/A',
-                                           duration=i.get('duration'), album='Default', views=0)
+                                           duration=i.get('duration'), views=0)
             else:
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url=i.get('url'),
-                                           duration=i.get('duration'), album='Default', views=0)
+                                           duration=i.get('duration'), views=0)
 
             artists_data = i.get('artist').split(",")
             artists = []
@@ -252,21 +239,6 @@ class SongUpdateMock(APIView):
                 SongArtist.objects.create(song=song, artist=artist)
 
         return Response(0, status=status.HTTP_200_OK)
-
-
-class ListAlbumView(APIView):
-    permission_classes = [AllowAny]
-    model = Song
-
-    def get(self, request):
-        songs = Song.objects.all()
-        albums = {""}
-        for i in songs:
-            albums.add(i.album)
-
-        albums.remove("")
-
-        return Response(albums, status=status.HTTP_200_OK)
 
 
 class ListCreateArtistView(ListCreateAPIView):
@@ -368,13 +340,9 @@ class ListGenreView(APIView):
 
     def get(self, request):
         genres = Genre.objects.all()
-        genre_list = {""}
-        for i in genres:
-            genre_list.add(i.title)
+        genre_list = GenreSerializerGet(genres, many=True)
 
-        genre_list.remove("")
-
-        return Response(genre_list, status=status.HTTP_200_OK)
+        return Response(data=genre_list.data, status=status.HTTP_200_OK)
 
 
 class SearchSongGenreView(APIView):
@@ -391,3 +359,149 @@ class SearchSongGenreView(APIView):
         serializer = SongSerializer(songs, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ListCreateGenreView(ListCreateAPIView):
+    model = Genre
+    serializer_class = GenreSerializerGet
+
+    def create(self, request, *args, **kwargs):
+        serializer = GenreSerializerGet(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Create a new Genre unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateDeleteGenreView(RetrieveUpdateDestroyAPIView):
+    model = Genre
+    serializer_class = GenreSerializerGet
+
+    def put(self, request, *args, **kwargs):
+        genre = get_object_or_404(Genre, id=kwargs.get('pk'))
+        serializer = GenreSerializerGet(genre, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Update Genre unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        genre = get_object_or_404(Genre, id=kwargs.get('pk'))
+        genre.delete()
+
+        return JsonResponse({
+            'message': 'Delete Genre successful!'
+        }, status=status.HTTP_200_OK)
+
+
+class ListPlaylistView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        playlist = Playlist.objects.all()
+        playlists = PlaylistSerializer(playlist, many=True)
+
+        return Response(data=playlists.data, status=status.HTTP_200_OK)
+
+
+class SearchSongPlaylistView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, s):
+        s = s.strip()
+        playlist = get_object_or_404(Playlist, title=s)
+        song_playlist = SongPlaylist.objects.filter(playlist=playlist)
+        songs = []
+        for i in song_playlist:
+            songs.append(i.song)
+
+        serializer = SongSerializer(songs, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ListCreatePlaylistView(ListCreateAPIView):
+    model = Playlist
+    serializer_class = PlaylistSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = PlaylistSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Create a new Playlist unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateDeletePlaylistView(RetrieveUpdateDestroyAPIView):
+    model = Playlist
+    serializer_class = PlaylistSerializer
+
+    def put(self, request, *args, **kwargs):
+        playlist = get_object_or_404(Playlist, id=kwargs.get('pk'))
+        serializer = PlaylistSerializer(playlist, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Update Playlist unsuccessful!'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        playlist = get_object_or_404(Playlist, id=kwargs.get('pk'))
+        playlist.delete()
+
+        return JsonResponse({
+            'message': 'Delete Playlist successful!'
+        }, status=status.HTTP_200_OK)
+
+
+class PlayListSongCreateAndDelete(APIView):
+
+    def post(self, request):
+        serializer = PlayListSongSerializer(data=request.data)
+
+        if serializer.is_valid():
+            song = get_object_or_404(Song, id=serializer.data['songId'])
+            playlist = get_object_or_404(Playlist, title=serializer.data['playlist'])
+            SongPlaylist.objects.create(song=song, playlist=playlist)
+
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Data Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        serializer = PlayListSongSerializer(data=request.data)
+
+        if serializer.is_valid():
+            song = get_object_or_404(Song, id=serializer.data['songId'])
+            playlist = get_object_or_404(Playlist, title=serializer.data['playlist'])
+            playlist_song = get_object_or_404(SongPlaylist, song=song, playlist=playlist)
+            playlist_song.delete()
+
+            return JsonResponse({
+                'message': 'Delete Song successful!'
+            }, status=status.HTTP_200_OK)
+
+        return JsonResponse({
+            'message': 'Data Invalid'
+        }, status=status.HTTP_400_BAD_REQUEST)

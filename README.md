@@ -14,8 +14,7 @@ POST    https://music-app-dd.herokuapp.com/music/song/
     "url": "url",
     "duration": 1,
     "genres": "a, b",
-    "album": "1",
-    "description": "A"
+    "description": "N/A"
 }
 ```
 
@@ -37,8 +36,7 @@ PUT    https://music-app-dd.herokuapp.com/music/song/1
     "url": "url",
     "duration": 1,
     "genres": "a, b",
-    "album": "1",
-    "description": "A"
+    "description": "N/A"
 }
 ```
 
@@ -64,17 +62,6 @@ GET    https://music-app-dd.herokuapp.com/music/song/detail/1
 get songs contain input (title contain "song")
 ```
 GET    https://music-app-dd.herokuapp.com/music/song/search/title/song
-```
-
-### Get all albums
-```
-GET    https://music-app-dd.herokuapp.com/music/song/album/
-```
-
-### Search songs with album
-get songs with input (album "1")
-```
-GET    https://music-app-dd.herokuapp.com/music/song/search/album/1
 ```
 
 ### Update data from mock-server (login required)
@@ -169,11 +156,102 @@ GET    https://music-app-dd.herokuapp.com/music/favorite-list/chun
 
 ### Get all genres
 ```
-GET    https://music-app-dd.herokuapp.com/music/genre/
+GET    https://music-app-dd.herokuapp.com/music/genre/all
 ```
 
 ### Search songs with genre
 get songs with input (genre "Pop")
 ```
-GET    https://music-app-dd.herokuapp.com/music/genre/Pop
+GET    https://music-app-dd.herokuapp.com/music/genre-song/Pop
+```
+
+### Add 1 genre (login required)
+```
+POST    https://music-app-dd.herokuapp.com/music/genre/
+```
+```json
+{
+    "title": "Hot",
+    "artwork": "No"
+}
+```
+
+### Edit 1 genre with id (login required)
+edit genre (id=1)
+```
+PUT    https://music-app-dd.herokuapp.com/music/genre/1
+```
+```json
+{
+    "title": "Hot",
+    "artwork": "No"
+}
+```
+
+### Delete 1 genre with id (login required)
+delete genre (id=1)
+```
+DELETE    https://music-app-dd.herokuapp.com/music/genre/1
+```
+
+### Get all playlist
+```
+GET    https://music-app-dd.herokuapp.com/music/playlist/all
+```
+
+### Search songs with playlist
+get songs with input (playlist "Hot")
+```
+GET    https://music-app-dd.herokuapp.com/music/playlist-song/Hot
+```
+
+### Add 1 playlist (login required)
+```
+POST    https://music-app-dd.herokuapp.com/music/playlist/
+```
+```json
+{
+    "title": "Hot",
+    "artwork": "No"
+}
+```
+
+### Edit 1 playlist with id (login required)
+edit playlist (id=1)
+```
+PUT    https://music-app-dd.herokuapp.com/music/playlist/1
+```
+```json
+{
+    "title": "Hot",
+    "artwork": "No"
+}
+```
+
+### Delete 1 playlist with id (login required)
+delete playlist (id=1)
+```
+DELETE    https://music-app-dd.herokuapp.com/music/playlist/1
+```
+
+### Add 1 song to playlist(login required)
+```
+POST    https://music-app-dd.herokuapp.com/music/playlist-song/
+```
+```json
+{
+    "songId": 1,
+    "playlist": "Hot"
+}
+```
+
+### Delete 1 song from playlist (login required)
+```
+DELETE    https://music-app-dd.herokuapp.com/music/playlist-song/
+```
+```json
+{
+    "songId": 1,
+    "playlist": "Hot"
+}
 ```

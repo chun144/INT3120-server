@@ -1,6 +1,6 @@
 from rest_framework import serializers
 # from django.contrib.auth.models import User
-from .models import Song, Genre, Artist, User
+from .models import Song, Genre, Artist, User, Playlist
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -51,13 +51,13 @@ class SongSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album', 'description')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'description')
 
 
 class SongSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = Song
-        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'album', 'description')
+        fields = ('id', 'title', 'artists', 'artwork', 'url', 'genres', 'views', 'duration', 'description')
 
 
 class ArtistModelSerializer(serializers.ModelSerializer):
@@ -69,4 +69,21 @@ class ArtistModelSerializer(serializers.ModelSerializer):
 class FavoriteListSerializer(serializers.Serializer):
     songId = serializers.IntegerField(required=True)
     username = serializers.CharField(required=True)
+
+
+class GenreSerializerGet(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ('id', 'title', 'artwork')
+
+
+class PlaylistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ('id', 'title', 'artwork')
+
+
+class PlayListSongSerializer(serializers.Serializer):
+    songId = serializers.IntegerField(required=True)
+    playlist = serializers.CharField(required=True)
 
