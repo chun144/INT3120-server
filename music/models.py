@@ -27,6 +27,18 @@ class Artist(models.Model):
 
 class Genre(models.Model):
     title = models.CharField(max_length=50)
+    artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1637651180/Data/Default/logo_mjrwxc.png')
+
+    def __str__(self):
+        return self.title
+
+
+class Playlist(models.Model):
+    title = models.CharField(max_length=100)
+    artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1637651180/Data/Default/logo_mjrwxc.png')
+
+    class Meta:
+        unique_together = [['title']]
 
     def __str__(self):
         return self.title
@@ -40,7 +52,6 @@ class Song(models.Model):
     views = models.IntegerField(default=0)
     duration = models.IntegerField(default=0)
     genres = models.ManyToManyField(Genre, through='SongGenre')
-    album = models.CharField(max_length=50, default='Default')
     description = models.CharField(max_length=1000, default='N/A')
 
     def __str__(self):
@@ -69,3 +80,11 @@ class FavoriteList(models.Model):
 
     class Meta:
         unique_together = [['song', 'user']]
+
+
+class SongPlaylist(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [['song', 'playlist']]
