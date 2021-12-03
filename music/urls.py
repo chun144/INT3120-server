@@ -20,4 +20,6 @@ urlpatterns = [
     path('login', views.UserLoginView.as_view(), name='login'),
     path('favorite-list/', views.FavoriteListCreateAndDelete.as_view()),
     path('favorite-list/<str:s>', views.FavoriteListView.as_view()),
+    path('genre/', views.ListGenreView.as_view()),
+    path('genre/<str:s>', views.SearchSongGenreView.as_view()),
 ]
