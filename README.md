@@ -200,9 +200,9 @@ GET    https://music-app-dd.herokuapp.com/music/playlist/all
 ```
 
 ### Search songs with playlist
-get songs with input (playlist "Hot")
+get songs with input (playlist id = 1)
 ```
-GET    https://music-app-dd.herokuapp.com/music/playlist-song/Hot
+GET    https://music-app-dd.herokuapp.com/music/playlist-song/1
 ```
 
 ### Add 1 playlist (login required)
@@ -212,7 +212,8 @@ POST    https://music-app-dd.herokuapp.com/music/playlist/
 ```json
 {
     "title": "Hot",
-    "artwork": "No"
+    "artwork": "No",
+    "username": "chun"
 }
 ```
 
@@ -224,7 +225,8 @@ PUT    https://music-app-dd.herokuapp.com/music/playlist/1
 ```json
 {
     "title": "Hot",
-    "artwork": "No"
+    "artwork": "No",
+    "username": "chun"
 }
 ```
 
@@ -241,7 +243,7 @@ POST    https://music-app-dd.herokuapp.com/music/playlist-song/
 ```json
 {
     "songId": 1,
-    "playlist": "Hot"
+    "playlistId": 1
 }
 ```
 
@@ -252,6 +254,17 @@ DELETE    https://music-app-dd.herokuapp.com/music/playlist-song/
 ```json
 {
     "songId": 1,
-    "playlist": "Hot"
+    "playlistId": 1
 }
+```
+
+### Get playlist with id
+```
+GET    https://music-app-dd.herokuapp.com/music/playlist/detail/1
+```
+
+### Get all playlist with user
+Get all playlist of username "chun"
+```
+GET    https://music-app-dd.herokuapp.com/music/playlist-user/chun
 ```

@@ -13,7 +13,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Song, Genre, SongGenre, Artist, SongArtist, User, FavoriteList, Playlist, SongPlaylist
 from .serializers import SongSerializer, SongSerializerPost, ArtistModelSerializer, UserRegistrationSerializer, \
-    UserLoginSerializer, FavoriteListSerializer, GenreSerializerGet, PlaylistSerializer, PlayListSongSerializer
+    UserLoginSerializer, FavoriteListSerializer, GenreSerializerGet, PlaylistSerializer, PlayListSongSerializer, \
+    PlaylistSerializerGet
 
 
 class UserRegisterView(APIView):
@@ -206,13 +207,13 @@ class SongUpdateMock(APIView):
                 song = Song.objects.create(title=i.get('title'), artwork=i.get('artwork'), url=i.get('url'),
                                            duration=i.get('duration'), views=0)
 
-            artists_data = i.get('artist').split(",")
+            artists_data = i.get('artists').split(",")
             artists = []
             for j in artists_data:
                 j = j.strip()
                 artists.append(j)
 
-            genres_data = i.get('genre').split(",")
+            genres_data = i.get('genres').split(",")
             genres = []
             for j in genres_data:
                 j = j.strip()
@@ -409,7 +410,7 @@ class ListPlaylistView(APIView):
 
     def get(self, request):
         playlist = Playlist.objects.all()
-        playlists = PlaylistSerializer(playlist, many=True)
+        playlists = PlaylistSerializerGet(playlist, many=True)
 
         return Response(data=playlists.data, status=status.HTTP_200_OK)
 
@@ -417,9 +418,8 @@ class ListPlaylistView(APIView):
 class SearchSongPlaylistView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, s):
-        s = s.strip()
-        playlist = get_object_or_404(Playlist, title=s)
+    def get(self, request, pk):
+        playlist = get_object_or_404(Playlist, id=pk)
         song_playlist = SongPlaylist.objects.filter(playlist=playlist)
         songs = []
         for i in song_playlist:
@@ -431,16 +431,23 @@ class SearchSongPlaylistView(APIView):
 
 
 class ListCreatePlaylistView(ListCreateAPIView):
-    model = Playlist
-    serializer_class = PlaylistSerializer
-
     def create(self, request, *args, **kwargs):
         serializer = PlaylistSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            username = serializer.data['username']
+            try:
+                artwork = serializer.data['artwork']
+            except:
+                artwork = 'https://res.cloudinary.com/dwc4kzyds/image/upload/v1637651180/Data/Default/logo_mjrwxc.png'
 
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+            user = get_object_or_404(User, username=username)
+            Playlist.objects.create(title=serializer.data['title'], artwork=artwork, user=user)
+            playlist = get_object_or_404(Playlist, title=serializer.data['title'], user=user)
+
+            data = PlaylistSerializerGet(playlist)
+
+            return Response(data=data.data, status=status.HTTP_200_OK)
 
         return JsonResponse({
             'message': 'Create a new Playlist unsuccessful!'
@@ -448,17 +455,19 @@ class ListCreatePlaylistView(ListCreateAPIView):
 
 
 class UpdateDeletePlaylistView(RetrieveUpdateDestroyAPIView):
-    model = Playlist
-    serializer_class = PlaylistSerializer
-
     def put(self, request, *args, **kwargs):
         playlist = get_object_or_404(Playlist, id=kwargs.get('pk'))
-        serializer = PlaylistSerializer(playlist, data=request.data)
+        serializer = PlaylistSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            user = get_object_or_404(User, username=serializer.data['username'])
+            playlist.title = serializer.data['title']
+            playlist.artwork = serializer.data['artwork']
+            playlist.user = user
+            playlist.save()
+            data = PlaylistSerializerGet(playlist)
 
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+            return Response(data=data.data, status=status.HTTP_200_OK)
 
         return JsonResponse({
             'message': 'Update Playlist unsuccessful!'
@@ -480,7 +489,7 @@ class PlayListSongCreateAndDelete(APIView):
 
         if serializer.is_valid():
             song = get_object_or_404(Song, id=serializer.data['songId'])
-            playlist = get_object_or_404(Playlist, title=serializer.data['playlist'])
+            playlist = get_object_or_404(Playlist, id=serializer.data['playlistId'])
             SongPlaylist.objects.create(song=song, playlist=playlist)
 
             return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -494,7 +503,7 @@ class PlayListSongCreateAndDelete(APIView):
 
         if serializer.is_valid():
             song = get_object_or_404(Song, id=serializer.data['songId'])
-            playlist = get_object_or_404(Playlist, title=serializer.data['playlist'])
+            playlist = get_object_or_404(Playlist, id=serializer.data['playlistId'])
             playlist_song = get_object_or_404(SongPlaylist, song=song, playlist=playlist)
             playlist_song.delete()
 
@@ -505,3 +514,24 @@ class PlayListSongCreateAndDelete(APIView):
         return JsonResponse({
             'message': 'Data Invalid'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PlaylistView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        playlist = get_object_or_404(Playlist, id=pk)
+        serializer = PlaylistSerializerGet(playlist)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class PlaylistUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, s):
+        user = get_object_or_404(User, username=s)
+        playlist = Playlist.objects.filter(user=user)
+        serializer = PlaylistSerializerGet(playlist, many=True)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

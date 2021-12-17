@@ -36,9 +36,10 @@ class Genre(models.Model):
 class Playlist(models.Model):
     title = models.CharField(max_length=100)
     artwork = models.CharField(max_length=255, default='https://res.cloudinary.com/dwc4kzyds/image/upload/v1637651180/Data/Default/logo_mjrwxc.png')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = [['title']]
+        unique_together = [['title', 'user']]
 
     def __str__(self):
         return self.title
