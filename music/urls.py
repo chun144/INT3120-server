@@ -23,8 +23,10 @@ urlpatterns = [
     path('genre/', views.ListCreateGenreView.as_view()),
     path('genre/<int:pk>', views.UpdateDeleteGenreView.as_view()),
     path('playlist/all', views.ListPlaylistView.as_view()),
-    path('playlist-song/<str:s>', views.SearchSongPlaylistView.as_view()),
+    path('playlist-song/<int:pk>', views.SearchSongPlaylistView.as_view()),
     path('playlist/', views.ListCreatePlaylistView.as_view()),
     path('playlist/<int:pk>', views.UpdateDeletePlaylistView.as_view()),
     path('playlist-song/', views.PlayListSongCreateAndDelete.as_view()),
+    path('playlist/detail/<int:pk>', views.PlaylistView.as_view()),
+    path('playlist-user/<str:s>', views.PlaylistUserView.as_view()),
 ]

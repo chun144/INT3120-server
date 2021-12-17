@@ -77,13 +77,32 @@ class GenreSerializerGet(serializers.ModelSerializer):
         fields = ('id', 'title', 'artwork')
 
 
-class PlaylistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Playlist
-        fields = ('id', 'title', 'artwork')
+class PlaylistSerializer(serializers.Serializer):
+    # class Meta:
+    #     model = Playlist
+    #     fields = ('id', 'title', 'artwork', 'user')
+
+    title = serializers.CharField(required=True)
+    artwork = serializers.CharField(required=False)
+    username = serializers.CharField(required=True)
 
 
 class PlayListSongSerializer(serializers.Serializer):
     songId = serializers.IntegerField(required=True)
-    playlist = serializers.CharField(required=True)
+    playlistId = serializers.CharField(required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username',)
+        depth = 1
+
+
+class PlaylistSerializerGet(serializers.ModelSerializer):
+    user = UserSerializer(required=True)
+
+    class Meta:
+        model = Playlist
+        fields = ('id', 'title', 'artwork', 'user')
 
